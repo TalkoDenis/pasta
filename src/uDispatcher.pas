@@ -6,55 +6,87 @@ interface
 uses uTypes;
 
 type
-  // Контракт для всех команд: процедура, принимающая список
   TCommandProc = procedure(Head: PNode);
 
-  TCommandEntry = record
+  // Указатель на узел команды
+  PCommandNode = ^TCommandNode;
+
+  // Узел команды
+  TCommandNode = record
     Name: String;
     Description: String;
     Proc: TCommandProc;
+    Next: PCommandNode;
   end;
 
 procedure RegisterCommand(Name, Desc: String; Proc: TCommandProc);
 function ExecuteCommand(Name: String; Head: PNode): Boolean;
-procedure PrintHelp; // Публичная, чтобы Handlers могли её вызывать
+procedure PrintHelp(Head: PNode);
 
 implementation
 
 var
-  CommandTable: array of TCommandEntry;
+  // Голова списка команд
+  CommandListHead: PCommandNode = nil;
+  // Вспомогательная переменная для очистки (вынесли её сюда)
+  CleanupTemp: PCommandNode;
 
 procedure RegisterCommand(Name, Desc: String; Proc: TCommandProc);
-var Idx: Integer;
+var
+  NewCmd: PCommandNode;
 begin
-  Idx := Length(CommandTable);
-  SetLength(CommandTable, Idx + 1);
-  CommandTable[Idx].Name := LowerCase(Name);
-  CommandTable[Idx].Description := Desc;
-  CommandTable[Idx].Proc := Proc;
+  New(NewCmd);
+  NewCmd^.Name := LowerCase(Name);
+  NewCmd^.Description := Desc;
+  NewCmd^.Proc := Proc;
+  
+  // Вставляем в начало списка
+  NewCmd^.Next := CommandListHead;
+  CommandListHead := NewCmd;
 end;
 
 function ExecuteCommand(Name: String; Head: PNode): Boolean;
-var i: Integer;
+var
+  Current: PCommandNode;
 begin
   Name := LowerCase(Name);
   Result := False;
-  for i := 0 to High(CommandTable) do
+  Current := CommandListHead;
+  while Current <> nil do
   begin
-    if CommandTable[i].Name = Name then
+    if Current^.Name = Name then
     begin
-      CommandTable[i].Proc(Head); // Вызов по указателю
+      Current^.Proc(Head);
       Exit(True);
     end;
+    Current := Current^.Next;
   end;
 end;
 
-procedure PrintHelp;
-var i: Integer;
+procedure PrintHelp(Head: PNode);
+var
+  Current: PCommandNode;
 begin
   WriteLn('Available commands:');
-  for i := 0 to High(CommandTable) do
-    WriteLn('  ', CommandTable[i].Name, ' : ', CommandTable[i].Description);
+  Current := CommandListHead;
+  while Current <> nil do
+  begin
+    WriteLn('  ', Current^.Name, ' : ', Current^.Description);
+    Current := Current^.Next;
+  end;
 end;
+
+initialization
+  RegisterCommand('help', 'Show command list', @PrintHelp);
+
+// Очистка памяти команд при выходе из программы
+finalization
+  // Теперь переменная объявлена наверху, здесь просто используем её
+  while CommandListHead <> nil do
+  begin
+    CleanupTemp := CommandListHead;
+    CommandListHead := CommandListHead^.Next;
+    Dispose(CleanupTemp);
+  end;
 
 end.
