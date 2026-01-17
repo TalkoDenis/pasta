@@ -3,7 +3,7 @@ unit uCmdMath;
 {$mode objfpc}{$H+}
 
 interface
-uses uTypes, uDispatcher, Math;
+uses uTypes, uDispatcher, Math, uListUtils, uAlgo;
 
 implementation
 
@@ -80,6 +80,31 @@ begin
     Std := 0.0;
 end;
 
+// === НОВАЯ ЛОГИКА МЕДИАНЫ ===
+
+function GetMedian(Head: PNode): Double;
+var Count: Integer;
+begin
+  // 1. Сортируем (из uAlgo)
+  SortList(Head);
+  
+  // 2. Считаем длину (из uListUtils)
+  Count := CountNodes(Head);
+  
+  if Count = 0 then Exit(0.0);
+
+  if (Count mod 2) = 1 then
+    Result := GetNthValue(Head, Count div 2)
+  else
+    Result := (GetNthValue(Head, (Count div 2) - 1) + 
+               GetNthValue(Head, Count div 2)) / 2.0;
+end;
+
+procedure HandleMedian(Head: PNode);
+begin
+  if not HasData(Head) then Exit;
+  WriteLn('  Median:  ', GetMedian(Head):0:4);
+end;
 // =========================================================
 // 3. ОБРАБОТЧИКИ (UI)
 // =========================================================
@@ -121,5 +146,6 @@ initialization
   RegisterCommand('max', 'Find maximum value', @HandleMax);
   RegisterCommand('avg', 'Calculate average',  @HandleAvg);
   RegisterCommand('std', 'Standard deviation', @HandleStd);
+  RegisterCommand('median', 'Median (Warning: Sorts data)', @HandleMedian);
 
 end.

@@ -9,6 +9,9 @@ uses SysUtils, Classes, uTypes;
 procedure LoadData(Args: TStringList; var Head, Tail: PNode);
 procedure FreeList(var Head: PNode);
 
+function CountNodes(Head: PNode): Integer;
+function GetNthValue(Head: PNode; Index: Integer): Double;
+
 implementation
 
 // Добавляет одно число в конец списка (внутренняя процедура)
@@ -85,6 +88,28 @@ begin
     Head := Head^.Next; // Сдвигаемся
     Dispose(Temp);      // Удаляем запомненный
   end;
+end;
+
+// --- СТАРЫЙ КОД (LoadData, FreeList и пр.) ОСТАВЛЯЕМ ТУТ ---
+// ...
+// --- НОВЫЕ УТИЛИТЫ ---
+function CountNodes(Head: PNode): Integer;
+begin
+  Result := 0;
+  while Head <> nil do begin
+    Inc(Result);
+    Head := Head^.Next;
+  end;
+end;
+
+function GetNthValue(Head: PNode; Index: Integer): Double;
+var i: Integer;
+begin
+  for i := 0 to Index - 1 do begin
+    if Head = nil then Exit(0.0);
+    Head := Head^.Next;
+  end;
+  if Head <> nil then Result := Head^.Value else Result := 0.0;
 end;
 
 end.
