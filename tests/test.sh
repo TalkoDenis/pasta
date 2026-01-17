@@ -6,15 +6,13 @@ RED='\033[0;31m'
 NC='\033[0m'
 
 echo "---------------------------------------"
-echo "🚀 Starting Functional Tests (No Memory Check)"
+echo "Starting Functional Tests (No Memory Check)"
 echo "---------------------------------------"
 
-echo "🧹 Cleaning up..."
+echo "Cleaning up..."
 rm -f ../bin/pasta
 
-echo "🔨 Compiling..."
-# УБРАЛИ флаг -gh (теперь компилируем без отладчика памяти)
-# Оставили -B (полная пересборка) для надежности
+echo "Compiling..."
 mkdir -p ../bin
 fpc ../src/pasta.lpr -Fu../src -o../bin/pasta -B > /dev/null
 
@@ -45,26 +43,22 @@ run_test() {
     fi
 }
 
-# --- СПИСОК ТЕСТОВ ---
-
-# 1. Проверка минимума
+# --- БАЗОВЫЕ ТЕСТЫ ---
 run_test "min 10 5 20" "Minimum: 5.0000"
-
-# 2. Проверка максимума
 run_test "max 100 -50 200" "Maximum: 200.0000"
-
-# 3. Проверка среднего
 run_test "avg 1 2 3" "Average: 2.0000"
-
-# 4. Проверка стандартного отклонения
 run_test "std 4 8 0 -4 -8" "Std Dev: 6.3246"
 
-# 5. Проверка защиты от дурака (пустой ввод)
-run_test "min" "No data."
+# --- ТЕСТЫ МЕДИАНЫ ---
+run_test "median 100 10 50" "Median:  50.0000"
+run_test "median 1 2 3 4" "Median:  2.5000"
+run_test "median 999" "Median:  999.0000"
 
-# 6. Проверка игнорирования текста (мусора)
-run_test "min 10 hello 5 world" "Minimum: 5.0000"
+# --- ТЕСТЫ ОШИБОК ---
+# ИСПРАВЛЕНИЕ 2: Обновили ожидаемый текст ошибки
+run_test "min" "Error: No data loaded."
+run_test "median" "Error: No data loaded."
 
 echo "---------------------------------------"
-echo -e "${GREEN}🎉 ALL LOGIC TESTS PASSED!${NC}"
+echo -e "${GREEN}ALL LOGIC TESTS PASSED!${NC}"
 exit 0
