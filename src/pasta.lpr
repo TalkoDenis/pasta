@@ -11,18 +11,17 @@ var
   InputLine, Command: String;
   CmdParts: TStringList;
   Head, Tail: PNode;
-  
-  // ИЗМЕНЕНИЕ 1: Используем TFPCHeapStatus вместо THeapStatus
   MemStatus: TFPCHeapStatus;
 
 begin
-  WriteLn('Pasta v5.0 (Plugin Architecture)');
+  WriteLn('Pasta v0.1');
   WriteLn('Type "help" to start.');
 
   CmdParts := TStringList.Create;
   CmdParts.Delimiter := ' ';
   CmdParts.StrictDelimiter := True;
 
+  // Main cycle
   repeat
     Write('pasta> ');
     ReadLn(InputLine);
@@ -45,17 +44,13 @@ begin
   CmdParts.Free;
   if Head <> nil then FreeList(Head);
   
-  // ИЗМЕНЕНИЕ 2: Вызываем GetFPCHeapStatus
   MemStatus := GetFPCHeapStatus;
   
   WriteLn('--------------------------------');
   WriteLn('Statistics:');
-  // CurrHeapUsed - сколько занято прямо сейчас
   WriteLn('  Current Memory : ', MemStatus.CurrHeapUsed, ' bytes');
   WriteLn('  Current Memory : ', MemStatus.CurrHeapUsed / 1024:0:2, ' KB');
-  // MaxHeapUsed - сколько было занято на пике нагрузки
   WriteLn('  Peak Usage     : ', MemStatus.MaxHeapUsed, ' bytes');
-  
   WriteLn('  Peak Usage     : ', MemStatus.MaxHeapUsed / 1024:0:2, ' KB');
   WriteLn('--------------------------------');
   WriteLn('Bye.');
