@@ -8,10 +8,8 @@ uses uTypes;
 type
   TCommandProc = procedure(Head: PNode);
 
-  // Указатель на узел команды
   PCommandNode = ^TCommandNode;
 
-  // Узел команды
   TCommandNode = record
     Name: String;
     Description: String;
@@ -26,9 +24,7 @@ procedure PrintHelp(Head: PNode);
 implementation
 
 var
-  // Голова списка команд
   CommandListHead: PCommandNode = nil;
-  // Вспомогательная переменная для очистки (вынесли её сюда)
   CleanupTemp: PCommandNode;
 
 procedure RegisterCommand(Name, Desc: String; Proc: TCommandProc);
@@ -40,10 +36,10 @@ begin
   NewCmd^.Description := Desc;
   NewCmd^.Proc := Proc;
   
-  // Вставляем в начало списка
   NewCmd^.Next := CommandListHead;
   CommandListHead := NewCmd;
 end;
+
 
 function ExecuteCommand(Name: String; Head: PNode): Boolean;
 var
@@ -53,15 +49,16 @@ begin
   Result := False;
   Current := CommandListHead;
   while Current <> nil do
-  begin
-    if Current^.Name = Name then
     begin
-      Current^.Proc(Head);
-      Exit(True);
-    end;
+      if Current^.Name = Name then
+        begin
+          Current^.Proc(Head);
+          Exit(True);
+        end;
     Current := Current^.Next;
-  end;
+    end;
 end;
+
 
 procedure PrintHelp(Head: PNode);
 var
@@ -70,23 +67,22 @@ begin
   WriteLn('Available commands:');
   Current := CommandListHead;
   while Current <> nil do
-  begin
-    WriteLn('  ', Current^.Name, ' : ', Current^.Description);
-    Current := Current^.Next;
-  end;
+    begin
+      WriteLn('  ', Current^.Name, ' : ', Current^.Description);
+      Current := Current^.Next;
+    end;
 end;
+
 
 initialization
   RegisterCommand('help', 'Show command list', @PrintHelp);
 
-// Очистка памяти команд при выходе из программы
 finalization
-  // Теперь переменная объявлена наверху, здесь просто используем её
   while CommandListHead <> nil do
-  begin
-    CleanupTemp := CommandListHead;
-    CommandListHead := CommandListHead^.Next;
-    Dispose(CleanupTemp);
-  end;
+    begin
+      CleanupTemp := CommandListHead;
+      CommandListHead := CommandListHead^.Next;
+      Dispose(CleanupTemp);
+    end;
 
 end.

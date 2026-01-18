@@ -42,15 +42,15 @@ run_test() {
 }
 
 # --- Base tests---
-run_test "min 10 5 20" "Minimum: 5.0000"
-run_test "max 100 -50 200" "Maximum: 200.0000"
-run_test "avg 1 2 3" "Average: 2.0000"
+run_test "min 10 5 20" "Minimum: 5"
+run_test "max 100 -50 200" "Maximum: 200"
+run_test "avg 1 2 3" "Average: 2"
 run_test "std 4 8 0 -4 -8" "Std Dev: 6.3246"
 
 # --- Tests ---
-run_test "median 100 10 50" "Median:  50.0000"
+run_test "median 100 10 50" "Median:  50"
 run_test "median 1 2 3 4" "Median:  2.5000"
-run_test "median 999" "Median:  999.0000"
+run_test "median 999" "Median:  999"
 
 # --- Mistake tests---
 run_test "min" "Error: No data loaded."

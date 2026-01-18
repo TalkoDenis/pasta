@@ -21,7 +21,7 @@ begin
   CmdParts.Delimiter := ' ';
   CmdParts.StrictDelimiter := True;
 
-  // Main cycle
+  // Main code.
   repeat
     Write('pasta> ');
     ReadLn(InputLine);

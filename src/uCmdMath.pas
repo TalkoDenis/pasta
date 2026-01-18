@@ -3,15 +3,21 @@ unit uCmdMath;
 {$mode objfpc}{$H+}
 
 interface
-uses uTypes, uDispatcher, Math, uListUtils, uAlgo;
+uses uTypes, uDispatcher, Math, uListUtils, uAlgo, SysUtils;
 
 implementation
 
-// =========================================================
-// 1. ВАЛИДАТОР (Единая точка проверки)
-// =========================================================
-// Возвращает TRUE, если данные есть.
-// Если данных нет, сама пишет ошибку и возвращает FALSE.
+// Here checks what kind of data there is and what shoud to show:
+// integer or float.
+function FormatVal(Val: Double): String;
+begin
+  if Abs(Val - Round(Val)) < 0.000001 then
+    Result := IntToStr(Round(Val)) // It's Int
+  else
+    Result := Format('%.4f', [Val]); // It's Float 
+end;
+
+
 function HasData(Head: PNode): Boolean;
 begin
   if Head = nil then
@@ -23,15 +29,9 @@ begin
     Result := True;
 end;
 
-// =========================================================
-// 2. ЧИСТАЯ МАТЕМАТИКА (LOGIC)
-// =========================================================
-// Внимание: Эти функции больше не проверяют Head на nil.
-// Мы гарантируем (Контракт), что вызываем их только если HasData = True.
 
 function GetMin(Head: PNode): Double;
 begin
-  // Мы сразу берем значение, так как знаем, что список не пуст
   Result := Head^.Value;
   Head := Head^.Next;
   
@@ -41,6 +41,7 @@ begin
     Head := Head^.Next;
   end;
 end;
+
 
 function GetMax(Head: PNode): Double;
 begin
@@ -54,7 +55,7 @@ begin
   end;
 end;
 
-// Процедура считает сразу и Среднее, и Отклонение (оптимизация прохода)
+// Here gets Averege and Std values
 procedure GetAvgStd(Head: PNode; out Avg, Std: Double);
 var 
   Sum, SumSq, Val: Double; 
@@ -71,7 +72,7 @@ begin
     Head := Head^.Next;
   end;
   
-  // Деление на Count (мы знаем, что Count > 0, благодаря HasData)
+  // Because of HasData func we may get Count (Count > 0)
   Avg := Sum / Count;
   
   if Count > 1 then
@@ -80,15 +81,12 @@ begin
     Std := 0.0;
 end;
 
-// === НОВАЯ ЛОГИКА МЕДИАНЫ ===
 
 function GetMedian(Head: PNode): Double;
 var Count: Integer;
 begin
-  // 1. Сортируем (из uAlgo)
   SortList(Head);
   
-  // 2. Считаем длину (из uListUtils)
   Count := CountNodes(Head);
   
   if Count = 0 then Exit(0.0);
@@ -96,30 +94,27 @@ begin
   if (Count mod 2) = 1 then
     Result := GetNthValue(Head, Count div 2)
   else
-    Result := (GetNthValue(Head, (Count div 2) - 1) + 
-               GetNthValue(Head, Count div 2)) / 2.0;
+    Result := (GetNthValue(Head, (Count div 2) - 1) + GetNthValue(Head, Count div 2)) / 2.0;
 end;
 
 procedure HandleMedian(Head: PNode);
 begin
   if not HasData(Head) then Exit;
-  WriteLn('  Median:  ', GetMedian(Head):0:4);
+  WriteLn('  Median:  ', FormatVal(GetMedian(Head)));
 end;
-// =========================================================
-// 3. ОБРАБОТЧИКИ (UI)
-// =========================================================
-// Теперь они выглядят одинаково и чисто.
+
 
 procedure HandleMin(Head: PNode);
 begin
-  if not HasData(Head) then Exit; // <-- Одна проверка
-  WriteLn('  Minimum: ', GetMin(Head):0:4);
+  if not HasData(Head) then Exit; 
+  WriteLn('  Minimum: ', FormatVal(GetMin(Head)));
 end;
+
 
 procedure HandleMax(Head: PNode);
 begin
   if not HasData(Head) then Exit;
-  WriteLn('  Maximum: ', GetMax(Head):0:4);
+  WriteLn('  Maximum: ', FormatVal(GetMax(Head)));
 end;
 
 procedure HandleAvg(Head: PNode);
@@ -127,7 +122,7 @@ var Avg, Std: Double;
 begin
   if not HasData(Head) then Exit;
   GetAvgStd(Head, Avg, Std);
-  WriteLn('  Average: ', Avg:0:4);
+  WriteLn('  Average: ', FormatVal(Avg));
 end;
 
 procedure HandleStd(Head: PNode);
@@ -135,12 +130,10 @@ var Avg, Std: Double;
 begin
   if not HasData(Head) then Exit;
   GetAvgStd(Head, Avg, Std);
-  WriteLn('  Std Dev: ', Std:0:4);
+  WriteLn('  Std Dev: ', FormatVal(Std));
 end;
 
-// =========================================================
-// 4. РЕГИСТРАЦИЯ
-// =========================================================
+
 initialization
   RegisterCommand('min', 'Find minimum value', @HandleMin);
   RegisterCommand('max', 'Find maximum value', @HandleMax);
