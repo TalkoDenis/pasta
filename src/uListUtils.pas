@@ -1,113 +1,121 @@
-unit uListUtils;
+
+Unit uListUtils;
 
 {$mode objfpc}{$H+}
 
-interface
+Interface
 
-uses SysUtils, Classes, uTypes;
+Uses SysUtils, Classes, uTypes;
 
-procedure LoadData(Args: TStringList; var Head, Tail: PNode);
-procedure FreeList(var Head: PNode);
+Procedure LoadData(Args: TStringList; Var Head, Tail: PNode);
+Procedure FreeList(Var Head: PNode);
 
-function CountNodes(Head: PNode): Integer;
-function GetNthValue(Head: PNode; Index: Integer): Double;
+Function CountNodes(Head: PNode): Integer;
+Function GetNthValue(Head: PNode; Index: Integer): Double;
 
-implementation
+Implementation
 
-procedure AddValue(var Head, Tail: PNode; Val: Double);
-var
+Procedure AddValue(Var Head, Tail: PNode; Val: Double);
+
+Var 
   NewNode: PNode;
-begin
-  New(NewNode);           
+Begin
+  New(NewNode);
   NewNode^.Value := Val;
-  NewNode^.Next := nil;
+  NewNode^.Next := Nil;
 
-  if Head = nil then
+  If Head = Nil Then
     Head := NewNode
-  else
-    Tail^.Next := NewNode; 
-    
-  Tail := NewNode;         
-end;
+  Else
+    Tail^.Next := NewNode;
+
+  Tail := NewNode;
+End;
 
 
-procedure AddFromFile(FileName: String; var Head, Tail: PNode);
-var
+Procedure AddFromFile(FileName: String; Var Head, Tail: PNode);
+
+Var 
   F: TextFile;
   Line: String;
   Val: Double;
-begin
+Begin
   AssignFile(F, FileName);
-  {$I-} Reset(F); {$I+} 
-  
-  if IOResult <> 0 then 
-  begin
-    WriteLn('Error: Cannot open file -> ', FileName);
-    Exit;
-  end;
+  {$I-}
+  Reset(F); {$I+}
 
-  while not Eof(F) do
-    begin
+  If IOResult <> 0 Then
+    Begin
+      WriteLn('Error: Cannot open file -> ', FileName);
+      Exit;
+    End;
+
+  While Not Eof(F) Do
+    Begin
       ReadLn(F, Line);
-      if TryStrToFloat(Trim(Line), Val) then
+      If TryStrToFloat(Trim(Line), Val) Then
         AddValue(Head, Tail, Val);
-    end;
+    End;
   CloseFile(F);
-end;
+End;
 
 
-procedure LoadData(Args: TStringList; var Head, Tail: PNode);
-var
+Procedure LoadData(Args: TStringList; Var Head, Tail: PNode);
+
+Var 
   i: Integer;
   Token: String;
   Val: Double;
-begin
-  for i := 1 to Args.Count - 1 do
-    begin
+Begin
+  For i := 1 To Args.Count - 1 Do
+    Begin
       Token := Args[i];
-    
-      if FileExists(Token) then
+
+      If FileExists(Token) Then
         AddFromFile(Token, Head, Tail)
-      else if TryStrToFloat(Token, Val) then
-        AddValue(Head, Tail, Val)
-      else
+      Else If TryStrToFloat(Token, Val) Then
+             AddValue(Head, Tail, Val)
+      Else
         WriteLn('Warning: Skipped -> ', Token);
-    end;
-end;
+    End;
+End;
 
 
-procedure FreeList(var Head: PNode);
-var
+Procedure FreeList(Var Head: PNode);
+
+Var 
   Temp: PNode;
-begin
-  while Head <> nil do
-    begin
-      Temp := Head;       
-      Head := Head^.Next; 
-      Dispose(Temp);      
-    end;
-end;
+Begin
+  While Head <> Nil Do
+    Begin
+      Temp := Head;
+      Head := Head^.Next;
+      Dispose(Temp);
+    End;
+End;
 
 
-function CountNodes(Head: PNode): Integer;
-begin
+Function CountNodes(Head: PNode): Integer;
+Begin
   Result := 0;
-  while Head <> nil do
-     begin
+  While Head <> Nil Do
+    Begin
       Inc(Result);
       Head := Head^.Next;
-    end;
-end;
+    End;
+End;
 
-function GetNthValue(Head: PNode; Index: Integer): Double;
-var i: Integer;
-begin
-  for i := 0 to Index - 1 do
-    begin
-      if Head = nil then Exit(0.0);
+Function GetNthValue(Head: PNode; Index: Integer): Double;
+
+Var i: Integer;
+Begin
+  For i := 0 To Index - 1 Do
+    Begin
+      If Head = Nil Then Exit(0.0);
       Head := Head^.Next;
-    end;
-  if Head <> nil then Result := Head^.Value else Result := 0.0;
-end;
+    End;
+  If Head <> Nil Then Result := Head^.Value
+  Else Result := 0.0;
+End;
 
-end.
+End.

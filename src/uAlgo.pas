@@ -1,66 +1,79 @@
-unit uAlgo;
+
+Unit uAlgo;
 
 {$mode objfpc}{$H+}
 
-interface
-uses uTypes;
+Interface
 
-procedure SortList(var Head: PNode);
+Uses uTypes;
 
-implementation
+Procedure SortList(Var Head: PNode);
 
-procedure SplitList(Source: PNode; var Front, Back: PNode);
-var Fast, Slow: PNode;
-begin
-  if (Source = nil) or (Source^.Next = nil) then
-    begin
-      Front := Source; Back := nil; Exit;
-    end;
-  Slow := Source; Fast := Source^.Next;
-  while (Fast <> nil) do
-    begin
+Implementation
+
+Procedure SplitList(Source: PNode; out Front, Back: PNode);
+
+Var Fast, Slow: PNode;
+Begin
+  If (Source = Nil) Or (Source^.Next = Nil) Then
+    Begin
+      Front := Source;
+      Back := Nil;
+      Exit;
+    End;
+  Slow := Source;
+  Fast := Source^.Next;
+  While (Fast <> Nil) Do
+    Begin
       Fast := Fast^.Next;
-      if (Fast <> nil) then
-        begin
-          Slow := Slow^.Next; Fast := Fast^.Next;
-        end;
-    end;
-  Front := Source; Back := Slow^.Next; Slow^.Next := nil;
-end;
+      If (Fast <> Nil) Then
+        Begin
+          Slow := Slow^.Next;
+          Fast := Fast^.Next;
+        End;
+    End;
+  Front := Source;
+  Back := Slow^.Next;
+  Slow^.Next := Nil;
+End;
 
 
-function Merge(A, B: PNode): PNode;
-var ResultHead: PNode;
-begin
-  if A = nil then Exit(B);
-  if B = nil then Exit(A);
-  
-  if A^.Value <= B^.Value then
-    begin
-      ResultHead := A; ResultHead^.Next := Merge(A^.Next, B);
-    end
-  else 
-    begin
-      ResultHead := B; ResultHead^.Next := Merge(A, B^.Next);
-    end;
+Function Merge(A, B: PNode): PNode;
+
+Var ResultHead: PNode;
+Begin
+  If A = Nil Then Exit(B);
+  If B = Nil Then Exit(A);
+
+  If A^.Value <= B^.Value Then
+    Begin
+      ResultHead := A;
+      ResultHead^.Next := Merge(A^.Next, B);
+    End
+  Else
+    Begin
+      ResultHead := B;
+      ResultHead^.Next := Merge(A, B^.Next);
+    End;
   Result := ResultHead;
-end;
+End;
 
 
-procedure MergeSort(var Head: PNode);
-var A, B: PNode;
-begin
-  if (Head = nil) or (Head^.Next = nil) then Exit;
+Procedure MergeSort(Var Head: PNode);
+
+Var A, B: PNode;
+Begin
+  If (Head = Nil) Or (Head^.Next = Nil) Then Exit;
   SplitList(Head, A, B);
   MergeSort(A);
   MergeSort(B);
   Head := Merge(A, B);
-end;
+End;
 
 
-procedure SortList(var Head: PNode);
-begin
+Procedure SortList(Var Head: PNode);
+Begin
   MergeSort(Head);
-end;
+End;
 
-end.
+End.

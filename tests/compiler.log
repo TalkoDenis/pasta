@@ -1,0 +1,18 @@
+Hint: Start of reading config file /etc/fpc.cfg
+Hint: End of reading config file /etc/fpc.cfg
+Free Pascal Compiler version 3.2.2+dfsg-32 [2024/01/05] for x86_64
+Copyright (c) 1993-2021 by Florian Klaempfl and others
+Target OS: Linux for x86-64
+Compiling ../src/pasta.lpr
+Compiling /home/denis/trash_and_others/pascal_projects/pasta/src/uTypes.pas
+Compiling /home/denis/trash_and_others/pascal_projects/pasta/src/uListUtils.pas
+Compiling /home/denis/trash_and_others/pascal_projects/pasta/src/uDispatcher.pas
+uDispatcher.pas(24,21) Hint: Parameter "Head" not used
+Compiling /home/denis/trash_and_others/pascal_projects/pasta/src/uCmdMath.pas
+Compiling /home/denis/trash_and_others/pascal_projects/pasta/src/uAlgo.pas
+uAlgo.pas(67,23) Hint: Local variable "B" does not seem to be initialized
+uAlgo.pas(67,20) Hint: Local variable "A" does not seem to be initialized
+uCmdMath.pas(8,27) Hint: Unit "Math" not used in uCmdMath
+Linking ../bin/pasta
+523 lines compiled, 0.2 sec
+6 hint(s) issued

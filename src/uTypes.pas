@@ -1,17 +1,18 @@
-unit uTypes;
+
+Unit uTypes;
 
 {$mode objfpc}{$H+}
 
-interface
+Interface
 
-type
+Type 
   PNode = ^TNode;
-  
-  TNode = record
-    Value: Double; 
-    Next: PNode;   
-  end;
 
-implementation
+  TNode = Record
+    Value: Double;
+    Next: PNode;
+  End;
 
-end.
+Implementation
+
+End.

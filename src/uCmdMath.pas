@@ -1,144 +1,153 @@
-unit uCmdMath;
+
+Unit uCmdMath;
 
 {$mode objfpc}{$H+}
 
-interface
-uses uTypes, uDispatcher, Math, uListUtils, uAlgo, SysUtils;
+Interface
 
-implementation
+Uses uTypes, uDispatcher, uListUtils, uAlgo, SysUtils;
+
+Implementation
 
 // Here checks what kind of data there is and what shoud to show:
 // integer or float.
-function FormatVal(Val: Double): String;
-begin
-  if Abs(Val - Round(Val)) < 0.000001 then
+Function FormatVal(Val: Double): String;
+Begin
+  If Abs(Val - Round(Val)) < 0.000001 Then
     Result := IntToStr(Round(Val)) // It's Int
-  else
-    Result := Format('%.4f', [Val]); // It's Float 
-end;
+  Else
+    Result := Format('%.4f', [Val]);
+  // It's Float 
+End;
 
 
-function HasData(Head: PNode): Boolean;
-begin
-  if Head = nil then
-  begin
-    WriteLn('  Error: No data loaded.');
-    Result := False;
-  end
-  else
+Function HasData(Head: PNode): Boolean;
+Begin
+  If Head = Nil Then
+    Begin
+      WriteLn('  Error: No data loaded.');
+      Result := False;
+    End
+  Else
     Result := True;
-end;
+End;
 
 
-function GetMin(Head: PNode): Double;
-begin
+Function GetMin(Head: PNode): Double;
+Begin
   Result := Head^.Value;
   Head := Head^.Next;
-  
-  while Head <> nil do 
-  begin
-    if Head^.Value < Result then Result := Head^.Value;
-    Head := Head^.Next;
-  end;
-end;
+
+  While Head <> Nil Do
+    Begin
+      If Head^.Value < Result Then Result := Head^.Value;
+      Head := Head^.Next;
+    End;
+End;
 
 
-function GetMax(Head: PNode): Double;
-begin
+Function GetMax(Head: PNode): Double;
+Begin
   Result := Head^.Value;
   Head := Head^.Next;
-  
-  while Head <> nil do 
-  begin
-    if Head^.Value > Result then Result := Head^.Value;
-    Head := Head^.Next;
-  end;
-end;
+
+  While Head <> Nil Do
+    Begin
+      If Head^.Value > Result Then Result := Head^.Value;
+      Head := Head^.Next;
+    End;
+End;
 
 // Here gets Averege and Std values
-procedure GetAvgStd(Head: PNode; out Avg, Std: Double);
-var 
-  Sum, SumSq, Val: Double; 
+Procedure GetAvgStd(Head: PNode; out Avg, Std: Double);
+
+Var 
+  Sum, SumSq, Val: Double;
   Count: Integer;
-begin
-  Sum := 0; SumSq := 0; Count := 0;
-  
-  while Head <> nil do 
-  begin
-    Val := Head^.Value;
-    Sum := Sum + Val;
-    SumSq := SumSq + (Val * Val);
-    Inc(Count);
-    Head := Head^.Next;
-  end;
-  
+Begin
+  Sum := 0;
+  SumSq := 0;
+  Count := 0;
+
+  While Head <> Nil Do
+    Begin
+      Val := Head^.Value;
+      Sum := Sum + Val;
+      SumSq := SumSq + (Val * Val);
+      Inc(Count);
+      Head := Head^.Next;
+    End;
+
   // Because of HasData func we may get Count (Count > 0)
   Avg := Sum / Count;
-  
-  if Count > 1 then
+
+  If Count > 1 Then
     Std := Sqrt((SumSq - (Sqr(Sum)/Count)) / (Count - 1))
-  else 
+  Else
     Std := 0.0;
-end;
+End;
 
 
-function GetMedian(Head: PNode): Double;
-var Count: Integer;
-begin
+Function GetMedian(Head: PNode): Double;
+
+Var Count: Integer;
+Begin
   SortList(Head);
-  
+
   Count := CountNodes(Head);
-  
-  if Count = 0 then Exit(0.0);
 
-  if (Count mod 2) = 1 then
-    Result := GetNthValue(Head, Count div 2)
-  else
-    Result := (GetNthValue(Head, (Count div 2) - 1) + GetNthValue(Head, Count div 2)) / 2.0;
-end;
+  If Count = 0 Then Exit(0.0);
 
-procedure HandleMedian(Head: PNode);
-begin
-  if not HasData(Head) then Exit;
+  If (Count Mod 2) = 1 Then
+    Result := GetNthValue(Head, Count Div 2)
+  Else
+    Result := (GetNthValue(Head, (Count Div 2) - 1) + GetNthValue(Head, Count Div 2)) / 2.0;
+End;
+
+Procedure HandleMedian(Head: PNode);
+Begin
+  If Not HasData(Head) Then Exit;
   WriteLn('  Median:  ', FormatVal(GetMedian(Head)));
-end;
+End;
 
 
-procedure HandleMin(Head: PNode);
-begin
-  if not HasData(Head) then Exit; 
+Procedure HandleMin(Head: PNode);
+Begin
+  If Not HasData(Head) Then Exit;
   WriteLn('  Minimum: ', FormatVal(GetMin(Head)));
-end;
+End;
 
 
-procedure HandleMax(Head: PNode);
-begin
-  if not HasData(Head) then Exit;
+Procedure HandleMax(Head: PNode);
+Begin
+  If Not HasData(Head) Then Exit;
   WriteLn('  Maximum: ', FormatVal(GetMax(Head)));
-end;
+End;
 
-procedure HandleAvg(Head: PNode);
-var Avg, Std: Double;
-begin
-  if not HasData(Head) then Exit;
+Procedure HandleAvg(Head: PNode);
+
+Var Avg, Std: Double;
+Begin
+  If Not HasData(Head) Then Exit;
   GetAvgStd(Head, Avg, Std);
   WriteLn('  Average: ', FormatVal(Avg));
-end;
+End;
 
-procedure HandleStd(Head: PNode);
-var Avg, Std: Double;
-begin
-  if not HasData(Head) then Exit;
+Procedure HandleStd(Head: PNode);
+
+Var Avg, Std: Double;
+Begin
+  If Not HasData(Head) Then Exit;
   GetAvgStd(Head, Avg, Std);
   WriteLn('  Std Dev: ', FormatVal(Std));
-end;
+End;
 
 
 initialization
-  RegisterCommand('min', 'Find minimum value', @HandleMin);
-  RegisterCommand('max', 'Find maximum value', @HandleMax);
-  RegisterCommand('avg', 'Calculate average',  @HandleAvg);
-  RegisterCommand('std', 'Standard deviation', @HandleStd);
-  RegisterCommand('median', 'Median (Warning: Sorts data)', @HandleMedian);
+RegisterCommand('min', 'Find minimum value', @HandleMin);
+RegisterCommand('max', 'Find maximum value', @HandleMax);
+RegisterCommand('avg', 'Calculate average',  @HandleAvg);
+RegisterCommand('std', 'Standard deviation', @HandleStd);
+RegisterCommand('median', 'Median (Warning: Sorts data)', @HandleMedian);
 
-end.
+End.

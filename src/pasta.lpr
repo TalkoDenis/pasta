@@ -1,19 +1,20 @@
-program pasta;
+
+Program pasta;
 
 {$mode objfpc}{$H+}
 
-uses
-  SysUtils, Classes,
-  uTypes, uListUtils, uDispatcher,
-  uCmdMath;
+Uses 
+SysUtils, Classes,
+uTypes, uListUtils, uDispatcher,
+uCmdMath;
 
-var
+Var 
   InputLine, Command: String;
   CmdParts: TStringList;
   Head, Tail: PNode;
   MemStatus: TFPCHeapStatus;
 
-begin
+Begin
   WriteLn('Pasta v0.1');
   WriteLn('Type "help" to start.');
 
@@ -22,30 +23,31 @@ begin
   CmdParts.StrictDelimiter := True;
 
   // Main code.
-  repeat
+  Repeat
     Write('pasta> ');
     ReadLn(InputLine);
-    if Trim(InputLine) = '' then Continue;
+    If Trim(InputLine) = '' Then Continue;
 
     CmdParts.DelimitedText := InputLine;
     Command := CmdParts[0];
 
-    if LowerCase(Command) = 'exit' then Break;
+    If LowerCase(Command) = 'exit' Then Break;
 
-    Head := nil; Tail := nil;
-    if CmdParts.Count > 1 then LoadData(CmdParts, Head, Tail);
+    Head := Nil;
+    Tail := Nil;
+    If CmdParts.Count > 1 Then LoadData(CmdParts, Head, Tail);
 
-    if not ExecuteCommand(Command, Head) then
+    If Not ExecuteCommand(Command, Head) Then
       WriteLn('  Unknown command: ', Command);
 
     FreeList(Head);
-  until False;
+  Until False;
 
   CmdParts.Free;
-  if Head <> nil then FreeList(Head);
-  
+  If Head <> Nil Then FreeList(Head);
+
   MemStatus := GetFPCHeapStatus;
-  
+
   WriteLn('--------------------------------');
   WriteLn('Statistics:');
   WriteLn('  Current Memory : ', MemStatus.CurrHeapUsed, ' bytes');
@@ -54,4 +56,4 @@ begin
   WriteLn('  Peak Usage     : ', MemStatus.MaxHeapUsed / 1024:0:2, ' KB');
   WriteLn('--------------------------------');
   WriteLn('Bye.');
-end.
+End.

@@ -14,7 +14,8 @@ rm -f ../bin/pasta
 
 echo "Compiling..."
 mkdir -p ../bin
-fpc ../src/pasta.lpr -Fu../src -o../bin/pasta -B > /dev/null
+# fpc ../src/pasta.lpr -Fu../src -o../bin/pasta -B > /dev/null
+fpc ../src/pasta.lpr -Fu../src -o../bin/pasta -B -vewnhi > compiler.log
 
 if [ $? -ne 0 ]; then
     echo -e "${RED}Compilation FAILED! Fix code errors first.${NC}"

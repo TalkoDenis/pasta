@@ -1,88 +1,94 @@
-unit uDispatcher;
+
+Unit uDispatcher;
 
 {$mode objfpc}{$H+}
 
-interface
-uses uTypes;
+Interface
 
-type
-  TCommandProc = procedure(Head: PNode);
+Uses uTypes;
+
+Type 
+  TCommandProc = Procedure (Head: PNode);
 
   PCommandNode = ^TCommandNode;
 
-  TCommandNode = record
+  TCommandNode = Record
     Name: String;
     Description: String;
     Proc: TCommandProc;
     Next: PCommandNode;
-  end;
+  End;
 
-procedure RegisterCommand(Name, Desc: String; Proc: TCommandProc);
-function ExecuteCommand(Name: String; Head: PNode): Boolean;
-procedure PrintHelp(Head: PNode);
+Procedure RegisterCommand(Name, Desc: String; Proc: TCommandProc);
+Function ExecuteCommand(Name: String; Head: PNode): Boolean;
+Procedure PrintHelp(Head: PNode);
 
-implementation
+Implementation
 
-var
+Var 
   CommandListHead: PCommandNode = nil;
   CleanupTemp: PCommandNode;
 
-procedure RegisterCommand(Name, Desc: String; Proc: TCommandProc);
-var
+Procedure RegisterCommand(Name, Desc: String; Proc: TCommandProc);
+
+Var 
   NewCmd: PCommandNode;
-begin
+Begin
   New(NewCmd);
   NewCmd^.Name := LowerCase(Name);
   NewCmd^.Description := Desc;
   NewCmd^.Proc := Proc;
-  
+
   NewCmd^.Next := CommandListHead;
   CommandListHead := NewCmd;
-end;
+End;
 
 
-function ExecuteCommand(Name: String; Head: PNode): Boolean;
-var
+Function ExecuteCommand(Name: String; Head: PNode): Boolean;
+
+Var 
   Current: PCommandNode;
-begin
+Begin
   Name := LowerCase(Name);
   Result := False;
   Current := CommandListHead;
-  while Current <> nil do
-    begin
-      if Current^.Name = Name then
-        begin
+  While Current <> Nil Do
+    Begin
+      If Current^.Name = Name Then
+        Begin
           Current^.Proc(Head);
           Exit(True);
-        end;
-    Current := Current^.Next;
-    end;
-end;
+        End;
+      Current := Current^.Next;
+    End;
+End;
 
 
-procedure PrintHelp(Head: PNode);
-var
+Procedure PrintHelp(Head: PNode);
+
+Var 
   Current: PCommandNode;
-begin
+Begin
+  if Head = nil then ;
   WriteLn('Available commands:');
   Current := CommandListHead;
-  while Current <> nil do
-    begin
+  While Current <> Nil Do
+    Begin
       WriteLn('  ', Current^.Name, ' : ', Current^.Description);
       Current := Current^.Next;
-    end;
-end;
+    End;
+End;
 
 
 initialization
-  RegisterCommand('help', 'Show command list', @PrintHelp);
+RegisterCommand('help', 'Show command list', @PrintHelp);
 
 finalization
-  while CommandListHead <> nil do
-    begin
-      CleanupTemp := CommandListHead;
-      CommandListHead := CommandListHead^.Next;
-      Dispose(CleanupTemp);
-    end;
+While CommandListHead <> Nil Do
+  Begin
+    CleanupTemp := CommandListHead;
+    CommandListHead := CommandListHead^.Next;
+    Dispose(CleanupTemp);
+  End;
 
-end.
+End.
